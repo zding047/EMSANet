@@ -1,0 +1,15 @@
+version: "3"
+
+
+services:
+    multitask:
+        image: trifo-pt:multitask
+        volumes:
+            - ~/harness/EMSANet:/workspace
+            - /tmp:/tmp
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: multitask
+        working_dir: /workspace
+        command: bash
