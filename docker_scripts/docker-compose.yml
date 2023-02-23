@@ -5,7 +5,7 @@ services:
     multitask:
         image: trifo-pt:multitask
         volumes:
-            - ~/harness/EMSANet:/workspace
+            - ~/repos/EMSANet:/workspace
             - /tmp:/tmp
         build:
             context: .

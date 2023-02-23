@@ -23,8 +23,7 @@ RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron
 
 
 # dataset package
-COPY ./lib/ ./
-RUN pip install scipy && pip install -e ./nicr-scene-analysis-datasets
+RUN pip install scipy && pip install -e ./lib/nicr-scene-analysis-datasets
 
 # multitask scene analysis package
-RUN pip install -e ./nicr-multitask-scene-analysis
+RUN pip install -e ./lib/nicr-multitask-scene-analysis
