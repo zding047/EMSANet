@@ -1,5 +1,4 @@
 # EMSANet: Efficient Multi-Task RGB-D Scene Analysis for Indoor Environments
-
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/efficient-multi-task-rgb-d-scene-analysis-for/semantic-segmentation-on-nyu-depth-v2)](https://paperswithcode.com/sota/semantic-segmentation-on-nyu-depth-v2?p=efficient-multi-task-rgb-d-scene-analysis-for)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/efficient-multi-task-rgb-d-scene-analysis-for/semantic-segmentation-on-sun-rgbd)](https://paperswithcode.com/sota/semantic-segmentation-on-sun-rgbd?p=efficient-multi-task-rgb-d-scene-analysis-for)
 
@@ -8,6 +7,8 @@
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/efficient-multi-task-rgb-d-scene-analysis-for/scene-classification-unified-classes-on-nyu)](https://paperswithcode.com/sota/scene-classification-unified-classes-on-nyu?p=efficient-multi-task-rgb-d-scene-analysis-for)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/efficient-multi-task-rgb-d-scene-analysis-for/scene-classification-unified-classes-on-sun)](https://paperswithcode.com/sota/scene-classification-unified-classes-on-sun?p=efficient-multi-task-rgb-d-scene-analysis-for)
+
+> **Updated on 2023-03-29** for our follow-up works [EMSAFormer](https://github.com/TUI-NICR/EMSAFormer) and [Panoptic Mapping](https://github.com/TUI-NICR/panoptic-mapping).
 
 This repository contains the code to our paper "EMSANet: Efficient Multi-Task 
 RGB-D Scene Analysis for Indoor Environments" ([IEEE Xplore](https://ieeexplore.ieee.org/document/9892852), [arXiv](https://arxiv.org/pdf/2207.04526.pdf))
@@ -30,7 +31,7 @@ The source code is published under Apache 2.0 license, see
 If you use the source code or the network weights, please cite the following 
 paper ([IEEE Xplore](https://ieeexplore.ieee.org/document/9892852), [arXiv](https://arxiv.org/pdf/2207.04526.pdf)):
 
-> Seichter, D., Fischedick, B., Köhler, M., Gross, H.-M.
+> Seichter, D., Fischedick, S., Köhler, M., Gross, H.-M.
 *Efficient Multi-Task RGB-D Scene Analysis for Indoor Environments*,
 in IEEE International Joint Conference on Neural Networks (IJCNN), pp. 1-10, 2022.
 
@@ -58,7 +59,7 @@ Conference on Neural Networks (IJCNN) 2022.
 
 
 ## Content
-There are subsection for different things to do:
+There are subsections for different things to do:
 - [Installation](#installation): Set up the environment.
 - [Results & Weights](#results--weights): Overview about major results and pretrained network weights.
 - [Evaluation](#evaluation): Reproduce results reported in our paper.
@@ -67,61 +68,73 @@ There are subsection for different things to do:
     - [Sample Inference](#sample-inference): Apply trained model to samples in ./samples.
     - [Time Inference](#time-inference): Time inference on NVIDIA Jetson AGX Xavier using TensorRT.
 - [Training](#training): Train new EMSANet model.
-
+- [Changelog](#changelog): List of changes and updates made to the project.
 
 ## Installation
-1. Create conda environment and install all dependencies:
+1. Clone repository:
     ```bash
-    # option 1: create conda environment from provided YAML file
-    # note that this environment does not include detectron2 that is required for ./external
-    conda env create -f multi_task_environment.yml
-    conda activate multitask
-    ```
-
-    ```bash
-    # option 2: create new conda environment manually
-    conda create -n multitask python=3.8 anaconda
-    conda activate multitask
-
-    # remaining conda dependencies
-    conda install pytorch=1.10.1 torchvision=0.11.2 cudatoolkit=11.3 -c pytorch
-
-    # remaining pip dependencies
-    pip install 'opencv-python>=4.2.0.34'    # newer versions may work as well
-    pip install torchmetrics==0.6.2
-    pip install wandb==0.12.9
-
-    # optional dependencies
-    # -> test dependencies and ./external only
-    conda install 'protobuf<=3.19.1'    # for onnx
-    pip install onnx==1.11.0
-    pip install git+https://github.com/cocodataset/panopticapi.git
-    # -> for ./external only
-    # see: https://detectron2.readthedocs.io/en/latest/tutorials/install.html)
-    python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.10/index.html
-    ```
-
-2. Clone repository and install submodule packages:
-    ```bash
-    # do not forget the '--recursive' ;)
+    # do not forget the '--recursive'
     git clone --recursive https://github.com/TUI-NICR/EMSANet
 
     # navigate to the cloned directory (required for installing some dependencies and to run the scripts later)
     cd EMSANet
-
-    # dataset package
-    pip install -e ./lib/nicr-scene-analysis-datasets[with_preparation]
-
-    # multitask scene analysis package
-    pip install -e ./lib/nicr-multitask-scene-analysis
     ```
 
-3. Prepare datasets:  
+2. Create conda environment and install all dependencies:
+    ```bash
+    # option 1: create conda environment from provided YAML file with PyTorch 1.10 (original publication)
+    # note that this environment does not include detectron2 that is required for ./external
+    conda env create -f emsanet_environment_pytorch_1_10.yml
+    conda activate emsanet
+    ```
+
+    ```bash
+    # option 2: create conda environment from provided YAML file with PyTorch 1.13 (follow-up work)
+    # note that this environment does not include detectron2 that is required for ./external
+    conda env create -f emsanet_environment_pytorch_1_13.yml
+    conda activate emsanet
+    ```
+
+    ```bash
+    # option 3: create new conda environment manually
+    conda create -n emsanet python=3.8 anaconda
+    conda activate emsanet
+
+    # remaining conda dependencies
+    # note: PyTorch 2.0 works as well
+    conda install pytorch=1.13.0 torchvision=0.14.0 torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
+
+    # remaining pip dependencies
+    python -m pip install 'opencv-python>=4.2.0.34'    # newer versions may work as well
+    python -m pip install torchmetrics==0.10.2
+    python -m pip install wandb==0.13.6
+
+    # optional dependencies
+    # -> test dependencies and ./external only
+    conda install 'protobuf<=3.19.1'    # for onnx
+    python -m pip install onnx==1.13.1
+    python -m pip install git+https://github.com/cocodataset/panopticapi.git
+    # -> for ./external only
+    # see: https://detectron2.readthedocs.io/en/latest/tutorials/install.html
+    python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+    ```
+
+3. Install submodule packages:
+    ```bash
+    # dataset package
+    python -m pip install -e ./lib/nicr-scene-analysis-datasets[withpreparation]
+
+    # multitask scene analysis package
+    python -m pip install -e ./lib/nicr-multitask-scene-analysis
+    ```
+
+4. Prepare datasets:  
     We trained our networks on 
     [NYUv2](https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html), 
-    [SUNRGB-D](https://rgbd.cs.princeton.edu/), and [Hypersim](nicr_scene_analysis_datasets/datasets/hypersim). 
+    [SUNRGB-D](https://rgbd.cs.princeton.edu/), and 
+    [Hypersim](https://machinelearning.apple.com/research/hypersim). 
 
-    Please follow the instructions given in `./lib/nicr-scene-analysis-datasets` or [HERE](https://github.com/TUI-NICR/nicr-scene-analysis-datasets/tree/ca73dc8f4976647fbd1c2da54ca7a31ccd1bea98) to prepare the datasets. 
+    Please follow the instructions given in `./lib/nicr-scene-analysis-datasets` or [HERE](https://github.com/TUI-NICR/nicr-scene-analysis-datasets/tree/v0.5.3) to prepare the datasets. 
     In the following, we assume that they are stored at `./datasets`
 
 
@@ -156,6 +169,7 @@ Note that the training was done with additional normal estimation task.
 
 Download and extract the models to `./trained_models`.
 
+> Check out our follow-up works [EMSAFormer](https://github.com/TUI-NICR/EMSAFormer) and [Panoptic Mapping](https://github.com/TUI-NICR/panoptic-mapping) for results and weights on ScanNet dataset. 
 
 ## Evaluation
 To reproduce results for the full multi-task approach, use `main.py` together 
@@ -168,6 +182,9 @@ the tasks the model was trained on.
 during panoptic merging that was fixed along with preparing the code for the 
 release. However, the results below tend to be slightly better.
 
+> On Apr 20, 2023, we further fixed a small bug in the instance task helper: the MAAE metric object was not reset after computing the metric value (at the end of an epoch), which led to wrong results for *valid_orientation_mae_gt_deg* in consecutive validations. The values reported below are fine as they were computed in a single validation. However, the results reported in our paper slightly differ due the mentioned bug. Use the values below to compare to our approach.
+
+### NYUv2
 
 To evaluate on NYUv2 (without pretraining on Hypersim), run:
 ```bash
@@ -188,7 +205,7 @@ python main.py \
     --validation-only \
     --skip-sanity-check \
     --wandb-mode disabled
-````
+```
 ```text
 Validation results:
 {
@@ -233,7 +250,7 @@ python main.py \
     --validation-only \
     --skip-sanity-check \
     --wandb-mode disabled
-````
+```
 ```text
 Validation results:
 {
@@ -258,12 +275,15 @@ Validation results:
 ...
 }
 ```
-    
+
+### SUNRGB-D
+
 To evaluate on SUNRGB-D (without pretraining on Hypersim), run:
 ```bash
 python main.py \
     --dataset sunrgbd \
     --dataset-path ./datasets/sunrgbd \
+    --sunrgbd-depth-do-not-force-mm \
     --tasks semantic scene instance orientation \
     --enable-panoptic \
     --input-modalities rgb depth \
@@ -278,7 +298,7 @@ python main.py \
     --validation-only \
     --skip-sanity-check \
     --wandb-mode disabled
-````
+```
 ```text
 Validation results:
 {
@@ -309,6 +329,7 @@ To evaluate on SUNRGB-D (with pretraining on Hypersim), run:
 python main.py \
     --dataset sunrgbd \
     --dataset-path ./datasets/sunrgbd \
+    --sunrgbd-depth-do-not-force-mm \
     --tasks semantic scene instance orientation \
     --enable-panoptic \
     --input-modalities rgb depth \
@@ -323,7 +344,7 @@ python main.py \
     --validation-only \
     --skip-sanity-check \
     --wandb-mode disabled
-````
+```
 ```text
 Validation results:
 {
@@ -348,7 +369,6 @@ Validation results:
 ...
 }
 ```
-
 
 ## Inference
 We provide scripts for inference on both samples drawn from one of our used 
@@ -398,8 +418,8 @@ configuration (classes, colors, ...) and to build the model correctly.
 However, you do not need to prepare the respective dataset.
 Furthermore, depending on the given depth images and the 
 used dataset for training, an additional depth scaling might be necessary. 
-The provided example depth image is in 1/10 millimeters (1m equals to a depth 
-value of 10000).
+The provided example depth image is in millimeters (1m equals to a depth 
+value of 1000).
 
 Examples: 
 - To apply our EMSANet-R34-NBt1D trained on NYUv2 to the samples, run:
@@ -415,8 +435,9 @@ Examples:
         --no-pretrained-backbone \
         --input-modalities rgb depth \
         --raw-depth \
-        --depth-max 60000 \
-        --depth-scale 0.1 \
+        --depth-max 10000 \
+        --depth-scale 1 \
+        --instance-offset-distance-threshold 40 \
         --weights-filepath ./trained_models/nyuv2/r34_NBt1D_pre.pth
     ```
     ![img](samples/result_nyuv2.png)
@@ -425,6 +446,7 @@ Examples:
     ```bash
     python inference_samples.py \
         --dataset sunrgbd \
+        --sunrgbd-depth-do-not-force-mm \
         --tasks semantic scene instance orientation \
         --enable-panoptic \
         --rgb-encoder-backbone resnet34 \
@@ -434,17 +456,28 @@ Examples:
         --no-pretrained-backbone \
         --input-modalities rgb depth \
         --raw-depth \
-        --depth-max 60000 \
-        --depth-scale 1 \
+        --depth-max 8000 \
+        --depth-scale 8 \
+        --instance-offset-distance-threshold 40 \
         --weights-filepath ./trained_models/sunrgbd/r34_NBt1D.pth
     ```
     ![img](samples/result_sunrgbd.png)
 
-> Note that the models are not trained on that kind of incomplete depth or RGB 
-input images. Moreover, training on NYUv2 means that no images from Kinect v2 
+> Note that the models are not trained on that kind of incomplete depth images. 
+Moreover, training on NYUv2 means that no images from Kinect v2 
 were present at all (NYUv2 is Kinect (v1) only).
 
+> Note that the `--instance-offset-distance-threshold` argument is used to 
+assign an instance ID of 0 to pixels if they have a distance greater than 
+40 pixels from the nearest center. During panoptic merging, these pixels are 
+assigned to the void class.
+
 ### Time Inference
+
+> Note, for newer versions of TensorRT `onnx2trt` is not required (and also "
+"not available) anymore. Pass `--trt-use-get-engine-v2` to 
+`inference_time_whole_model.py` to use TensoRT's Python API instead.
+
 We timed the inference on an NVIDIA Jetson AGX Xavier with Jetpack 4.6 
 (TensorRT 8.0.1.6, PyTorch 1.10.0).
 
@@ -474,11 +507,10 @@ Reproducing the timings on an NVIDIA Jetson AGX Xavier further requires:
 
     # packages included as submodules in this repository
     pip install -e ./lib/nicr-scene-analysis-datasets
-    pip install -e ./lib/nicr-multitask-scene-analysis    
+    pip install -e ./lib/nicr-multitask-scene-analysis
     ```
 
 Subsequently, you can run `inference_time.bash` to reproduce the reported timings.
-
 
 ## Training
 Use `main.py` to train EMSANet on NYUv2, SUNRGB-D, Hypersim, or any other 
@@ -495,7 +527,7 @@ of VRAM, so a smaller GPU may also be fine. We did not observe any great boost
 from larger batch sizes.
 
 Example: Train our full multi-task EMSANet-R34-NBt1D on NYUv2:
-```
+```bash
 python main.py \
     --results-basepath ./results \
     --dataset nyuv2 \
@@ -521,6 +553,35 @@ python main.py \
 ```
 
 For more options, we refer to `./emsanet/args.py` or simply run:
+
 ```bash
 python main.py --help
 ```
+
+## Changelog
+
+> Most relevant changes are listed below. Note that backward compatibility might be broken. However, compatibility to original publication is retained.
+
+**Jun 08, 2023**
+- update sample image (depth in mm, RGB without registration artefacts)
+- bump `nicr-scene-analysis-datasets` to version 0.5.4
+
+**Apr 20, 2023**
+- bump `nicr-multitask-scene-analysis` to version 0.2.1 to fix a small bug in the instance task helper: the MAAE metric object was not reset after computing the metric value (at the end of an epoch) - see [evaluation section](#evaluation) for more details
+
+**Mar 29, 2023**
+- bump `nicr-scene-analysis-datasets` to version 0.5.2
+- bump `nicr-multitask-scene-analysis` to version 0.2.0
+- refactor `args.py` (backward compatible)
+- add support MLP-based decoders (SegFormer-like)
+- add support RGB-D modality (RGB and depth concatenated as 4 channels inputs)
+- add script for dataset inference `inference_dataset.py` for ScanNet benchmark and semantic/panoptic mapping
+- add support for ScanNet dataset
+- add support for concatenated datasets, e.g., SUNRGB-D and ScanNet
+- refactor batch and prediction visualization
+- add support for AdamW and RAdam optimizer
+- add conda environment for PyTorch 1.13 (PyTorch 2 should also work)
+- add support for TensorRT engine creation with Python API instead of `onnx2trt`
+
+**May 11, 2022**
+- initial code release for original publication (last revision ff1d1ab68e1bf386d081433c676d3a74d2beed71)
